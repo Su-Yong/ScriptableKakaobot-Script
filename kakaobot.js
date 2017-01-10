@@ -90,12 +90,12 @@ Command.Connect = {
     channel.to = room;
 
     for each(var r in KakaoTalk.getRoomList()) {
-      var origin = r;
+      var checker = r;
       if(r.indexOf("#") != -1) {
-        r = r.split("#")[1];
+        checker = r.split("#")[1];
       }
-      if(parameter[0] === r) {
-        channel.from = origin;
+      if(parameter[0] == checker) {
+        channel.from = r;
       }
     }
     if(!channel.from == "") {
@@ -107,7 +107,7 @@ Command.Connect = {
           KakaoTalk.reply(room, channel.from + " -> " + channel.to + " 중계를 시작합니다.", true);
         });
         dialog.setOnDismissListener(new android.content.DialogInterface.OnDismissListener({
-          onDismiss: function(android.content.DialogInterface interface) {
+          onDismiss: function(interface) {
             KakaoTalk.reply(room, "방 중계가 거절되었습니다.", true);
           }
         }));
