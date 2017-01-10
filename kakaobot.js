@@ -127,7 +127,7 @@ Command.Disconnect = {
   Execute: function(room, sender, parameter) {
     for(var i in channels) {
       if(parameter[0] == channels[i].from && room == channels[i].to) {
-        KakaoTalk.reply(room, channels[i].from " -> " + channels[i].to + " 중계를 중지합니다.", true);
+        KakaoTalk.reply(room, channels[i].from + " -> " + channels[i].to + " 중계를 중지합니다.", true);
         channels.splice(i, 1);
         return;
       }
