@@ -81,7 +81,7 @@ Command.Api = {
   }
 };
 
-Command.Disconnect = {
+Command.Connect = {
   Name: "Connect",
   Command: ["connect", "연결", "중계"],
 
@@ -104,11 +104,11 @@ Command.Disconnect = {
       KakaoTalk.UIThread(function() {
         var dialog = KakaoTalk.Dialog(channel.from + " -> " + channel.to, null, function() {
           channels.push(channel);
-          KakaoTalk.reply(room, channel.from " -> " + channel.to + " 중계를 시작합니다.", true);
+          KakaoTalk.reply(room, channel.from + " -> " + channel.to + " 중계를 시작합니다.", true);
         });
         dialog.setOnDismissListener(new android.content.DialogInterface.OnDismissListener({
           onDismiss: function(android.content.DialogInterface interface) {
-            KakaoTalk.reply(room, "방 중계가 거절되었습니다.");
+            KakaoTalk.reply(room, "방 중계가 거절되었습니다.", true);
           }
         }));
         dialog.show();
