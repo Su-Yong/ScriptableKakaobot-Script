@@ -23,8 +23,8 @@ Command.Help = {
       }
     } else {
       for(var i in Command) {
-        for(var j in Command[i].command) {
-          if(Command[i].command[j] === parameter[0]) {
+        for(var j in Command[i].Command) {
+          if(Command[i].Command[j] === parameter[0].toLowerCase()) {
             str += Command[i].Name + " - " + Command[i].Command.join(", ") + "\n";
             str += " > " + Command[i].Explain();
           }
@@ -55,12 +55,36 @@ Command.Eval = {
   }
 };
 
+Command.Api = {
+  Name: "API",
+  Command: ["api"],
+
+  Execute: function(room, sender, parameter) {
+    var str = "";
+    var check = false;
+    for each(var method in Object.getOwnPropertyNames(KakaoTalk)) {
+      if(check) {
+        str += "\n";
+      }
+      if(method == "arguments") {
+        break;
+      }
+
+      str += "KakaoTalk." + method;
+      check = true;
+    }
+  },
+  Explain: function(parameter) {
+    return "KakaoBot의 API를 나열합니다.";
+  }
+};
+
 Command.Channel = {
   Name: "Channel",
   Command: ["channel", "connect", "연결", "중계"],
 
   Execute: function(room, sender, parameter) {
-    KakaoTalk.reply(room, "현재 개발 중 입니다...", true);
+    
   },
   Explain: function(parameter) {
     return "특정 방의 메세지를 이 방으로 중계 해줍니다.";
@@ -84,9 +108,44 @@ function response(room, message, sender, isGroup) {
 
     var command = charDeleter.join("").split(" ");
 
+    if(sender.indexOf("#") != -1) {
+      var ban = sender.split("#")[0];
+      var what = ban.split(".")[0];
+      if(what === "global") {
+        KakaoTalk.reply(room, sender.split("#")[1] + "님은 이 명령어를 쓸 수 없습니다.");
+      }
+      return;
+    }
+
+    if(room.indexOf("#") != -1) {
+      var ban = room.split("#")[0];
+      var what = ban.split(".")[0];
+      if(what === "global") {
+        KakaoTalk.reply(room, room.split("#")[1] + "방에서는 명령어를 쓸 수 없습니다.");
+      }
+      return;
+    }
+
     for(var i in Command) {
       for(var j in Command[i].Command) {
         if(Command[i].Command[j] === (command[0] + "").toLowerCase()) {
+          if(sender.indexOf("#") != -1) {
+            var ban = sender.split("#")[0];
+            var what = ban.split(".")[0];
+            if(what === (command[0] + "").toLowerCase()) {
+              KakaoTalk.reply(room, sender.split("#")[1] + "님은 이 명령어를 쓸 수 없습니다.");
+            }
+            continue;
+          }
+          if(room.indexOf("#") != -1) {
+            var ban = room.split("#")[0];
+            var what = ban.split(".")[0];
+            if(what === (command[0] + "").toLowerCase()) {
+              KakaoTalk.reply(room, room.split("#")[1] + "방에서는 이 명령어를 쓸 수 없습니다.");
+            }
+            continue;
+          }
+
           var parameter = command;
           parameter.shift();
 
