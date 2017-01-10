@@ -73,24 +73,72 @@ Command.Api = {
       str += "KakaoTalk." + method;
       check = true;
     }
+
+    KakaoTalk.reply(room, str, true);
   },
   Explain: function(parameter) {
     return "KakaoBot의 API를 나열합니다.";
   }
 };
 
-Command.Channel = {
-  Name: "Channel",
-  Command: ["channel", "connect", "연결", "중계"],
+Command.Disconnect = {
+  Name: "Connect",
+  Command: ["connect", "연결", "중계"],
 
   Execute: function(room, sender, parameter) {
-    
+    var channel = new Channel();
+    channel.to = room;
+
+    for each(var r in KakaoTalk.getRoomList()) {
+      var origin = r;
+      if(r.indexOf("#") != -1) {
+        r = r.split("#")[1];
+      }
+      if(parameter[0] === r) {
+        channel.from = origin;
+      }
+    }
+    if(!channel.from == "") {
+      KakaoTalk.reply(room, "방을 찾을 수 없습니다.", true);
+    } else {
+      KakaoTalk.UIThread(function() {
+        var dialog = KakaoTalk.Dialog(channel.from + " -> " + channel.to, null, function() {
+          channels.push(channel);
+          KakaoTalk.reply(room, channel.from " -> " + channel.to + " 중계를 시작합니다.", true);
+        });
+        dialog.setOnDismissListener(new android.content.DialogInterface.OnDismissListener({
+          onDismiss: function(android.content.DialogInterface interface) {
+            KakaoTalk.reply(room, "방 중계가 거절되었습니다.");
+          }
+        }));
+        dialog.show();
+      });
+    }
   },
   Explain: function(parameter) {
     return "특정 방의 메세지를 이 방으로 중계 해줍니다.";
   }
 };
 
+Command.Disconnect = {
+  Name: "Disconnect",
+  Command: ["disconnect", "연결해제", "중계중단", "중계중지", "중계멈춤"],
+
+  Execute: function(room, sender, parameter) {
+    for(var i in channels) {
+      if(parameter[0] == channels[i].from && room == channels[i].to) {
+        KakaoTalk.reply(room, channels[i].from " -> " + channels[i].to + " 중계를 중지합니다.", true);
+        channels.splice(i, 1);
+        return;
+      }
+    }
+
+    KakaoTalk.reply(room, "방을 찾을 수 없습니다.", true);
+  },
+  Explain: function(parameter) {
+    return "중계를 중지합니다.";
+  }
+};
 
 var Channel = function() {
   this.from = "";
@@ -154,6 +202,10 @@ function response(room, message, sender, isGroup) {
       }
     }
   } else {
-    // Nothing
+    for each(var channel in channels) {
+      if(channel.from == room) {
+        KakaoTalk.reply(channel.to, "> " + sender + " : " + channel.from + " -> " + channel.to + "\n> " + message, true);
+      }
+    }
   }
 }
